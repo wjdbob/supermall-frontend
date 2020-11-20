@@ -15,11 +15,14 @@ name: "TabBar"
 #tab-bar {
   display: flex;
   background-color: #f1f1f1;
+  height: 49px;
+
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  box-shadow: 0 -3px 1px rgba(100,100,100,.05)
+  border-top: 1px solid rgba(100,100,100,.05);
+  box-shadow: 0 -3px 1px rgba(100,100,100,.05);
 }
 
 </style>

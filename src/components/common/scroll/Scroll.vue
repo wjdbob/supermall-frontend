@@ -53,10 +53,12 @@ name: "Scroll",
       this.$emit('scroll', position)
     })
   //当pullUpLoad为true时，可以侦听上拉下载更多事件
-    this.scroll.on('pullingUp', () => {
-      this.$emit('pullingUp')
+    if (this.pullUpLoad) {
+      this.scroll.on('pullingUp', () => {
+        this.$emit('pullingUp')
+      })
+    }
 
-    })
   //数据请求完成，将数据展示出来后调用finishpullup()f才能进行下一次上拉加载更多
 
   }

@@ -31,11 +31,12 @@ import GoodsList from 'components/content/goods/GoodsList.vue'
 import tabControl from 'components/content/tabControl/tabControl.vue'
 //滚动组件
 import scroll from 'components/common/scroll/Scroll.vue'
-//回到顶部组件
-import backTop from 'components/content/backTop/backTop.vue'
 //数据请求
 import {getHomeMultidata,getHomeGoods} from 'network/home.js'
-
+//导入防抖函数
+import {debounce} from 'common/utils.js'
+//导入混入对象
+import {backTopMixin} from 'common/mixin.js'
 
 export default {
 name: "Home",
@@ -47,8 +48,9 @@ name: "Home",
     tabControl,
     GoodsList,
     scroll,
-    backTop,
+
   },
+  mixins: [backTopMixin],
   data() {
     return {
       banners: [],
@@ -59,7 +61,7 @@ name: "Home",
         'new': {page: 0, list: []},
         'sell': {page: 0, list: []}
       },
-      isShowBackTop: false,
+      saveY: 0,
     }
   },
   methods: {
@@ -96,10 +98,7 @@ name: "Home",
           this.currentType = 'sell'
       }
     },
-    //点击回到顶部
-    backClick() {
-      this.$refs.scroll.scrollTo(0,0,400)
-    },
+
     //监听滚动位置，决定是否显示回到顶部按钮
     contentScroll(position) {
       this.isShowBackTop = (-position.y) > 1000
@@ -109,18 +108,6 @@ name: "Home",
       this.getGoods(this.currentType)
       this.$refs.scroll. finishPullUp()
     },
-    //防抖函数，每隔delay时间调用（返回）func函数
-    debounce(func,delay) {
-      let timer = null
-      return function(...args) {
-        if(timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-          func.apply(this,args)
-        },delay)
-      }
-    },
-    //等轮播图片加载完成后获取tabControl组件的offsetTop，所有组件都有属性$el，用于获取组件中的元素
-
   },
   created() {
     //请求多个数据
@@ -133,13 +120,18 @@ name: "Home",
   mounted() {
     //放在monted里监听图片加载完成保证可以拿到scroll对象,涉及非父子组件，我们采用事件总线来进行通讯
     //延迟200毫秒执行$refs.scroll.refresh函数，防抖动，避免频繁调用scroll.refresh
-    const refresh = this.debounce(this.$refs.scroll.refresh,200)
-    this.$bus.$on('itemImageLoad', () => {
+    const refresh = debounce(this.$refs.scroll.refresh,200)
+    this.$bus.$on('homeItemImageLoad', () => {
       refresh()
     })
-
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0,this.saveY,0)
+    this.$refs.scroll.refresh()
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.scroll.y
   }
-
 }
 </script>
 

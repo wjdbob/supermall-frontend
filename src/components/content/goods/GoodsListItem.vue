@@ -1,6 +1,6 @@
 <template>
-<div class="goods">
-  <img :src="goodsitem.show.img" alt="" @load="imageLoad">
+<div class="goods" @click="itemClick">
+  <img :src="showImage" alt="" @load="imageLoad">
   <div class="goods-info">
     <p>{{goodsitem.title}}</p>
     <span class="price">{{goodsitem.price}}</span>
@@ -20,10 +20,25 @@ export default {
       }
     }
   },
+  computed: {
+    showImage() {
+      //详情页推荐商品信息图片是image,主页商品信息的图片是show.img
+      return this.goodsitem.image || this.goodsitem.show.img
+    }
+
+  },
   methods: {
     imageLoad() {
-      this.$bus.$emit('itemImageLoad')
-    }
+      if (this.$route.path.indexOf('/home') >= 0) {
+        this.$bus.$emit('homeItemImageLoad')
+      } else if (this.$route.path.indexOf('/detail') >=0) {
+        this.$bus.$emit('detailItemImageLoad')
+      }
+
+    },
+    itemClick() {
+      this.$router.push('/detail/' + this.goodsitem.iid)
+    },
   }
 }
 </script>
